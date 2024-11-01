@@ -1,15 +1,27 @@
+using KoreanLicensePlateRecognition.Data;
+using KoreanLicensePlateRecognition.Interfaces;
+using KoreanLicensePlateRecognition.Repositories;
+using KoreanLicensePlateRecognition.Services;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// DbContext 등록
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// 서비스 및 리포지토리 등록
+builder.Services.AddScoped<ILicensePlateService, LicensePlateService>();
+builder.Services.AddScoped<ILicensePlateRepository, LicensePlateRepository>();
+
+// 기타 서비스 설정
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware 설정
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,9 +29,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
